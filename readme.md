@@ -18,4 +18,4 @@ Edit /usr/local/freeswitch/conf/autoload_configs/modules.conf.xml
     <!-- <load module="mod_amr"/> -->
     ......
 
-Remove the `<load module="mod_g729"/>` annotation
+Remove the **<load module="mod_g729"/>** annotation
