@@ -1,11 +1,11 @@
 This is a freeswitch G729 audio Encoding and Decoding module based on the bcg729 Library, refer to some of the code in the mod_bcg729 project
 
-#### Install tutorial
+### Install tutorial
 
     make
     make install
 
-#### freeswitch configuration
+### freeswitch configuration
 
 Edit /usr/local/freeswitch/conf/autoload_configs/modules.conf.xml
 
