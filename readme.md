@@ -4,6 +4,7 @@
 ### Install tutorial
 
 	$ git clone https://github.com/typefo/mod_g729.git
+	$ cd mod_g729
     $ make
     $ make install
 
