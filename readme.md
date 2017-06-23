@@ -3,8 +3,9 @@
 
 ### Install tutorial
 
-    make
-    make install
+	$ git clone https://github.com/typefo/mod_g729.git
+    $ make
+    $ make install
 
 ### freeswitch configuration
 
