@@ -43,9 +43,9 @@ struct g729_context {
 };
 
 static switch_status_t switch_g729_init(switch_codec_t *codec, switch_codec_flag_t flags, const switch_codec_settings_t *codec_settings) {
-    struct g729_context *context = NULL;
-    int encoding, decoding;
     uint8_t vad = 0;
+    int encoding, decoding;
+    struct g729_context *context = NULL;
 
     encoding = (flags & SWITCH_CODEC_FLAG_ENCODE);
     decoding = (flags & SWITCH_CODEC_FLAG_DECODE);
@@ -84,24 +84,25 @@ static switch_status_t switch_g729_encode(switch_codec_t *codec,
                                           uint32_t decoded_rate, void *encoded_data, uint32_t *encoded_data_len, uint32_t *encoded_rate,
                                           unsigned int *flag) {
     struct g729_context *context = codec->private_info;
-    uint8_t cbret = 0;
 
     if (!context) {
         return SWITCH_STATUS_FALSE;
     }
 
     if (decoded_data_len % 160 == 0) {
+        int x;
         uint32_t new_len = 0;
         int16_t *ddp = decoded_data;
         uint8_t *edp = encoded_data;
-        int x;
+        
         int loops = (int) decoded_data_len / 160;
 
         for (x = 0; x < loops && new_len < *encoded_data_len; x++) {
-            bcg729Encoder(context->encoder_object, ddp, edp, &cbret);
-            edp += 10;
-            ddp += 80;
-            new_len += 10;
+            uint8_t length;
+            bcg729Encoder(context->encoder_object, ddp, edp, &length);
+            edp += length;
+            ddp += length * 8;
+            new_len += length;
         }
 
         if (new_len <= *encoded_data_len) {
@@ -129,7 +130,7 @@ static switch_status_t switch_g729_decode(switch_codec_t *codec,
     }
 
     int x;
-    int framesize;
+    int length;
     uint32_t new_len = 0;
     uint8_t *edp = encoded_data;
     int16_t *ddp = decoded_data;
@@ -138,21 +139,17 @@ static switch_status_t switch_g729_decode(switch_codec_t *codec,
     if (encoded_data_len == 0) {
         bcg729Decoder(context->decoder_object, NULL, 0, 1, 0, 0, ddp);
         ddp += 80; 
-        decoded_data_len = (uint32_t *) 160;
+        decoded_data_len = (uint32_t *)160;
         switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "g729 zero length frame\n");
         return SWITCH_STATUS_SUCCESS;
     }
 
-    for(x = 0; x < encoded_data_len && new_len < *decoded_data_len; x += framesize) {
-        if(encoded_data_len - x < 8) {
-            framesize = 2;  /* SID */
-        } else {
-            framesize = 10; /* regular 729a frame */
-        }
-
-        bcg729Decoder(context->decoder_object, edp, framesize, 0, 0, 0, ddp);
+    for(x = 0; x < encoded_data_len && new_len < *decoded_data_len; x += length) {
+        uint8_t sid = ((encoded_data_len - x) < 8) ? 1 : 0;
+        length = (sid == 1) ? 2 : 10;
+        bcg729Decoder(context->decoder_object, edp, encoded_data_len, 0, sid, 0, ddp);
         ddp += 80;
-        edp += framesize;
+        edp += length;
         new_len += 160;
     }
 
