@@ -136,7 +136,7 @@ static switch_status_t switch_g729_decode(switch_codec_t *codec,
 
     /* Native PLC interpolation */
     if (encoded_data_len == 0) {
-        bcg729Decoder(context->decoder_object, NULL, 10, 1, 0, 0, ddp);
+        bcg729Decoder(context->decoder_object, NULL, 1, 0, 0, 0, ddp);
         ddp += 80; 
         decoded_data_len = (uint32_t *) 160;
         switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "g729 zero length frame\n");
@@ -150,7 +150,7 @@ static switch_status_t switch_g729_decode(switch_codec_t *codec,
             framesize = 10; /* regular 729a frame */
         }
 
-        bcg729Decoder(context->decoder_object, edp, 10, 0, 0, 0, ddp);
+        bcg729Decoder(context->decoder_object, edp, 0, 0, 0, 0, ddp);
         ddp += 80;
         edp += framesize;
         new_len += 160;
