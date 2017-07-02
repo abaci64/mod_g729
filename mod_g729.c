@@ -150,7 +150,7 @@ static switch_status_t switch_g729_decode(switch_codec_t *codec,
             framesize = 10; /* regular 729a frame */
         }
 
-        bcg729Decoder(context->decoder_object, edp, 0, 0, 0, 0, ddp);
+        bcg729Decoder(context->decoder_object, edp, framesize, 0, 0, 0, ddp);
         ddp += 80;
         edp += framesize;
         new_len += 160;
