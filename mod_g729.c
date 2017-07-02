@@ -95,7 +95,7 @@ static switch_status_t switch_g729_encode(switch_codec_t *codec,
         int16_t *ddp = decoded_data;
         uint8_t *edp = encoded_data;
         
-        int loops = (int) decoded_data_len / 160;
+        int loops = (int)decoded_data_len / 160;
 
         for (x = 0; x < loops && new_len < *encoded_data_len; x++) {
             uint8_t length;
