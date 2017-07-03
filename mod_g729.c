@@ -43,7 +43,6 @@ struct g729_context {
 };
 
 static switch_status_t switch_g729_init(switch_codec_t *codec, switch_codec_flag_t flags, const switch_codec_settings_t *codec_settings) {
-    uint8_t vad = 0;
     int encoding, decoding;
     struct g729_context *context = NULL;
 
@@ -52,19 +51,21 @@ static switch_status_t switch_g729_init(switch_codec_t *codec, switch_codec_flag
 
     if (!(encoding || decoding) || (!(context = switch_core_alloc(codec->memory_pool, sizeof(struct g729_context))))) {
         return SWITCH_STATUS_FALSE;
-    } else {
-        if (encoding) {
-            context->encoder_object = initBcg729EncoderChannel(vad);
-        }
-
-        if (decoding) {
-            context->decoder_object = initBcg729DecoderChannel();
-        }
-
-        codec->private_info = context;
-
-        return SWITCH_STATUS_SUCCESS;
     }
+        
+    codec->fmtp_out = switch_core_strdup(codec->memory_pool, "annexb=no");
+
+    if (encoding) {
+       context->encoder_object = initBcg729EncoderChannel(0);
+    }
+
+    if (decoding) {
+        context->decoder_object = initBcg729DecoderChannel();
+    }
+
+    codec->private_info = context;
+
+    return SWITCH_STATUS_SUCCESS;
 }
 
 static switch_status_t switch_g729_destroy(switch_codec_t *codec) {
@@ -135,7 +136,6 @@ static switch_status_t switch_g729_decode(switch_codec_t *codec,
     uint8_t *edp = encoded_data;
     int16_t *ddp = decoded_data;
 
-    /* Native PLC interpolation */
     if (encoded_data_len == 0) {
         bcg729Decoder(context->decoder_object, NULL, 0, 1, 0, 0, ddp);
         ddp += 80; 
